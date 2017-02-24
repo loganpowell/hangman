@@ -1,6 +1,24 @@
 body {
   font-family: 'Roboto Mono', monospace;
+  text-align: center;
 }
 h2 {
-  font-size: 2em;
+  font-size: 4em;
+}
+
+.floated h3 {
+  display: inline-block;
+}
+
+.top {
+  margin: 4em auto 2em;
+}
+
+.floated {
+  margin: 1em;
+}
+
+#guessed {
+  text-decoration: line-through;
+  font-size: 1em;
 }

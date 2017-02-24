@@ -1,23 +1,50 @@
 
 // objects to hold contents at three levels of difficulty (corresponding to levels of game)
-var levelOne = {
-  name: "LEVEL ONE",
-  wordList: ["fun", "spell", "fix", "bird", "play", "jump"],
+
+// Object level(levelOne) {
+//   Object game(levelOne) {
+//     Object function(levelOne)
+//   }
+// }
+
+
+var theEnd = {
+  name: "THE END",
+}
+var levelThree = {
+  wordList: ["shenanigans", "bamboozled", "bonkers", "zoinks", "shikaka", "chicago"],
+  name: "LEVEL THREE",
   randomWord: "",
   wordBox: [],
   uniqueGuesses: [],
   misses: 0,
-  correct: 0
+  correct: 0,
+  blankCount: 0,
+  nextLevel: theEnd,
 }
 var levelTwo = {
   wordList: ["funny", "worry", "bother", "bananas", "cleaning", "swampy"],
-
+  name: "LEVEL TWO",
+  randomWord: "",
+  wordBox: [],
+  uniqueGuesses: [],
+  misses: 0,
+  correct: 0,
+  blankCount: 0,
+  nextLevel: levelThree,
 }
-var levelThree = {
-  wordList: ["shenanigans", "bamboozled", "bonkers", "zoinks", "shikaka", "chicago"],
 
+var levelOne = {
+  wordList: ["fun", "spell", "fix", "bird", "play", "jump"],
+  name: "LEVEL ONE",
+  randomWord: "",
+  wordBox: [],
+  uniqueGuesses: [],
+  misses: 0,
+  correct: 0,
+  blankCount: 0,
+  nextLevel: levelTwo,
 }
-
 // // gistboxed (stolen) unique array function using prototpe of array
 // Array.prototype.unique = function() {
 //   return this.filter(function (value, index, self) {
@@ -26,7 +53,7 @@ var levelThree = {
 // }
 
 // random word chooser that parses through the array of words and stores it as a variable
-function randWordGen(level) {
+function randWordGen(level, playerGuess) {
   console.log("randWordGen...")
   // variables to keep track
   level.randomWord = level.wordList[Math.floor(Math.random() * level.wordList.length)]
@@ -38,10 +65,10 @@ function randWordGen(level) {
   console.log(level.wordBox)
 }
 
-function renderPage(level) {
+function renderPage(level, playerGuess) {
   console.log("Rendering page...");
   // render results to page
-
+  document.getElementById('bigBox').innerHTML = level.name
   document.getElementById('letters').innerHTML = level.wordBox
   document.getElementById('correct').innerHTML = level.correct
   document.getElementById('missed').innerHTML = level.misses
@@ -53,16 +80,26 @@ function renderPage(level) {
   }
 }
 
+function levelUp(level, playerGuess) {
+  // initialize level's random word
+  randWordGen(level, playerGuess)
+  // render level's page
+  renderPage(level, playerGuess)
+  // initialize the onkeypress event function chain
+  leveler(level, playerGuess)
+}
 
 function leveler(level) {
   console.log("Leveler...")
+  randWordGen(level)
+  renderPage(level)
   // get user input
   document.onkeypress = function(event) {
     var playerGuess = event.key.toLowerCase()
     console.log(level.uniqueGuesses)
     // if there are guesses recorded, check those first
     if (level.uniqueGuesses.length > 0) {
-      missCounter(level, playerGuess)
+      guessedCounter(level, playerGuess)
     }
     // if not, go straight to finding a match
     else {
@@ -72,18 +109,18 @@ function leveler(level) {
 }
 
 //  check to see if this guess has already been made
-function missCounter(level, playerGuess) {
-  console.log("missCounter...")
-  var missedCount = 0
+function guessedCounter(level, playerGuess) {
+  console.log("guessedCounter...")
+  var guessedCount = 0
     // go through existing guessed letters
     for (i = 0; i < level.uniqueGuesses.length; i++) {
       if (playerGuess !== level.uniqueGuesses[i]) {
-        missedCount++
-        console.log(missedCount)
+        guessedCount++
+        console.log(guessedCount)
       }
     }
     // if it went through all the guesses this one's unique, run the matcher
-    if (missedCount === level.uniqueGuesses.length) {
+    if (guessedCount === level.uniqueGuesses.length) {
       wordBoxer(level, playerGuess)
     }
     // if it's been guessed, alert the user
@@ -96,15 +133,11 @@ function missCounter(level, playerGuess) {
 function wordBoxer(level, playerGuess) {
   console.log("wordBoxer...")
   //set a variable to see how many blanks are left in the word
-  var blankCount = 0
+  console.log("blankCount:" + level.blankCount)
   // track the missed matches over the iterations
   var missCount = 0
   var newHit = 0
-  // count the blanks
-  for(var i = 0; i < level.wordBox.length; ++i){
-    if(level.wordBox[i] == "<span>_</span>")
-    blankCount++
-  }
+  var localblankCount = 0
   // iterate over each letter in the wordbox...
   for (var i = 0; i < level.wordBox.length; i++) {
     console.log(i)
@@ -117,7 +150,7 @@ function wordBoxer(level, playerGuess) {
       // if so, up the correct score, push the guess to the uniqueGuesses array and update the wordBox
       newHit++
       level.correct++
-      level.wordBox[i] = playerGuess
+      level.wordBox[i] = "<span>" + playerGuess + "</span>"
       console.log(level.wordBox)
       renderPage(level)
     }
@@ -128,7 +161,7 @@ function wordBoxer(level, playerGuess) {
     }
   }
   // after all iterations, only record a single miss
-  if (blankCount === missCount) {
+  if (level.blankCount === missCount) {
     level.uniqueGuesses.push(playerGuess)
     console.log(level.uniqueGuesses)
     level.misses++
@@ -139,11 +172,23 @@ function wordBoxer(level, playerGuess) {
     level.uniqueGuesses.push(playerGuess)
     renderPage(level)
   }
+  // count the blanks
+  for(var i = 0; i < level.wordBox.length; ++i){
+    if(level.wordBox[i] == "<span>_</span>") {
+      localblankCount++
+    }
+  }
+  level.blankCount = localblankCount
+  // if there are no more blanks, levelUp
+  if (level.blankCount === 0) {
+    alert("You WIN! and the word was... " + level.randomWord)
+    leveler(level.nextLevel)
+  }
 }
 // initialize level's random word
-randWordGen(levelOne)
-// render level's page
-renderPage(levelOne)
-document.getElementById('bigBox').innerHTML = levelOne.name
-// initialize the onkeypress event function chain
+// randWordGen(levelOne)
+// // render level's page
+// renderPage(levelOne)
+// document.getElementById('bigBox').innerHTML = levelOne.name
+// // initialize the onkeypress event function chain
 leveler(levelOne)
