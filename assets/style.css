@@ -4,6 +4,7 @@ body {
 }
 h2 {
   font-size: 4em;
+  margin-bottom: 1em;
 }
 
 .floated h3 {
