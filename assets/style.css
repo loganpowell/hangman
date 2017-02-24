@@ -2,11 +2,15 @@ body {
   font-family: 'Roboto Mono', monospace;
   text-align: center;
 }
-h2 {
-  font-size: 3em;
+
+#letters {
+  font-size: 4em;
   margin-bottom: 1em;
 }
 
+#bigBox {
+  font-size: 4em;
+}
 .floated h3 {
   display: inline-block;
 }
