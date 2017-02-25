@@ -1,13 +1,4 @@
-
-// objects to hold contents at three levels of difficulty (corresponding to levels of game)
-
-// Object level(levelOne) {
-//   Object game(levelOne) {
-//     Object function(levelOne)
-//   }
-// }
-
-
+// create records to retrieve and store state/data
 var theEnd = {
   name: "THE END",
 }
@@ -45,12 +36,6 @@ var levelOne = {
   blankCount: 0,
   nextLevel: levelTwo,
 }
-// // gistboxed (stolen) unique array function using prototpe of array
-// Array.prototype.unique = function() {
-//   return this.filter(function (value, index, self) {
-//     return self.indexOf(value) === index;
-//   });
-// }
 
 // random word chooser that parses through the array of words and stores it as a variable
 function randWordGen(level, playerGuess) {
@@ -78,15 +63,6 @@ function renderPage(level, playerGuess) {
   for (i = 0; i < correctLtrsCln.length; i++) {
     correctLtrsCln[i].innerHTML = correctLtrsCln[i].innerHTML.replace(/,/g, " ")
   }
-}
-
-function levelUp(level, playerGuess) {
-  // initialize level's random word
-  randWordGen(level, playerGuess)
-  // render level's page
-  renderPage(level, playerGuess)
-  // initialize the onkeypress event function chain
-  leveler(level, playerGuess)
 }
 
 function leveler(level) {
@@ -185,10 +161,5 @@ function wordBoxer(level, playerGuess) {
     leveler(level.nextLevel)
   }
 }
-// initialize level's random word
-// randWordGen(levelOne)
-// // render level's page
-// renderPage(levelOne)
-// document.getElementById('bigBox').innerHTML = levelOne.name
 // // initialize the onkeypress event function chain
 leveler(levelOne)
